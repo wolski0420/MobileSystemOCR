@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">MobileSystemOCR</string>
+    <string name="start_scheduler">Start updating</string>
+    <string name="stop_scheduler">Stop updating</string>
+    <string name="battery_level">Battery level</string>
+    <string name="battery_charging">Battery charging</string>
+    <string name="ram_usage">RAM usage</string>
+    <string name="cpu_usage">CPU Usage</string>
+    <string name="network_download">Network download bandwidth</string>
+    <string name="network_upload">Network upload bandwidth</string>
+    <string name="starting_value">0</string>
+</resources>
