@@ -1,4 +1,4 @@
-# Mobile systems project.
+# Mobile System OCR
 
 ### Datasets for OCR
 
