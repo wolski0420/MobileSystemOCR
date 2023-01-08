@@ -129,7 +129,7 @@ public class OcrScan extends AppCompatActivity {
         }
         //prepare intent
 //        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
+//
 //        if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
 //            File photoFile = null;
 //            try {
@@ -152,7 +152,7 @@ public class OcrScan extends AppCompatActivity {
 //                photoURI1 = Uri.fromFile(photoFile);
                 firstImage.setImageResource(R.drawable.pobrane);
                 Resources res = context.getResources();
-                Bitmap bmp = BitmapFactory.decodeResource(res,R.drawable.unnamed);
+                Bitmap bmp = BitmapFactory.decodeResource(res,R.drawable.pobrane);
 
                 doOCR(bmp);
 
@@ -160,7 +160,7 @@ public class OcrScan extends AppCompatActivity {
 
 
         }
-
+//    }
 
     public File createImageFile() throws IOException {
         // Create an image file name
