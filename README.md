@@ -15,3 +15,11 @@ If we do not want to focus on OCR results, it should be sufficient:
 - https://github.com/clovaai/cord
 
 It contains JSON files with not really expected results (categorized).
+
+ocr-cloud-app
+
+Flask app created with tessaract and opencv.
+
+To run server navigate to 'cloud-ocr-app' and run 'docker compose up'.
+You can acces it at http://127.0.0.1:8000/
+To perform tests navigate to 'cloud-ocr-app' and run python -m unittest discover -s test -p '*test.py'
