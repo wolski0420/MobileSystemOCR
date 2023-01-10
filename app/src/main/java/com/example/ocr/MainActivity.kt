@@ -10,6 +10,7 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.BatteryManager
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -71,6 +72,25 @@ class MainActivity : AppCompatActivity() {
         return networkCapabilities?.linkUpstreamBandwidthKbps?.div(8000.0) ?: 0.0
     }
 
+    private fun getNetworkType () : String {
+        val networkManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = networkManager.activeNetworkInfo
+        return if (networkInfo != null && networkInfo.isConnected) {
+            when (networkInfo.type) {
+                ConnectivityManager.TYPE_WIFI -> "WiFi"
+                ConnectivityManager.TYPE_MOBILE -> "Mobile"
+                ConnectivityManager.TYPE_ETHERNET -> "Ethernet"
+                else -> "Unknown"
+            }
+        } else {
+            "NotConnected"
+        }
+    }
+
+    private fun getCurrentTimeInMillis () : Long {
+        return SystemClock.elapsedRealtime()
+    }
+
     private fun addUpdatesToRepeater() {
         // battery info
         UpdatesRepeater.addAtomicUpdate {
@@ -89,6 +109,7 @@ class MainActivity : AppCompatActivity() {
         UpdatesRepeater.addAtomicUpdate {
             download_text_view.text = String.format("%.2f MB/s", getNetworkDownloadBandwidth())
             upload_text_view.text = String.format("%.2f MB/s", getNetworkUploadBandwidth())
+            network_type_text_view.text = getNetworkType()
         }
     }
 
@@ -104,6 +125,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             // if not updating, button action should start it
             val jobInfo = JobInfo.Builder(1, ComponentName(this, UpdatesRepeater::class.java))
+                .setOverrideDeadline(0)
                 .setPersisted(true)
                 .build()
 

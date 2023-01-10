@@ -91,4 +91,19 @@
         android:text="@string/starting_value"
         android:textAlignment="center" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:text="@string/network_type"
+        android:textAlignment="center" />
+
+    <TextView
+        android:id="@+id/network_type_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5sp"
+        android:text="@string/starting_value"
+        android:textAlignment="center" />
+
 </LinearLayout>
