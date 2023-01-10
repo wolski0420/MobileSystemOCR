@@ -15,3 +15,6 @@ If we do not want to focus on OCR results, it should be sufficient:
 - https://github.com/clovaai/cord
 
 It contains JSON files with not really expected results (categorized).
+
+Mobile ocr done with
+https://www.codeproject.com/Articles/1275580/Android-OCR-Application-Based-on-Tesseract
