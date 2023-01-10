@@ -18,3 +18,11 @@ It contains JSON files with not really expected results (categorized).
 
 Mobile ocr done with
 https://www.codeproject.com/Articles/1275580/Android-OCR-Application-Based-on-Tesseract
+
+ocr-cloud-app
+
+Flask app created with tessaract and opencv.
+
+To run server navigate to 'cloud-ocr-app' and run 'docker compose up'.
+You can acces it at http://127.0.0.1:8000/
+To perform tests navigate to 'cloud-ocr-app' and run python -m unittest discover -s test -p '*test.py'
