@@ -114,4 +114,20 @@
         android:text="@string/delta_and_save"
         android:textAlignment="center" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:onClick="ocrLocal"
+        android:text="@string/ocr_local"
+        android:textAlignment="center" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:onClick="ocrCloud"
+        android:text="@string/ocr_cloud"
+        android:textAlignment="center" />
+
 </LinearLayout>

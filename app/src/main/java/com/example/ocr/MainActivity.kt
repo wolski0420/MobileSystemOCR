@@ -7,6 +7,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Resources
+import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.os.BatteryManager
 import android.os.Bundle
@@ -15,12 +17,16 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.doyaaaaaken.kotlincsv.client.CsvWriter
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 class MainActivity : AppCompatActivity() {
+    private var ocrScan = OcrScan()
     private var csvWriter = CsvWriter()
     private var fileName = "data.csv"
     private var isUpdating = false
@@ -181,5 +187,44 @@ class MainActivity : AppCompatActivity() {
             getNetworkUploadBandwidth(),
             getNetworkType())
         )
+    }
+
+    private fun sendPost (filePath: String) {
+//        val url = URL("http://ec2-54-237-44-168.compute-1.amazonaws.com/upload")
+//
+//        with(url.openConnection() as HttpURLConnection) {
+//            requestMethod = "POST"
+//
+//            println("\nSent 'POST' request to URL : $url; Response Code : $responseCode")
+//
+//            inputStream.bufferedReader().use {
+//                it.lines().forEach { line ->
+//                    println(line)
+//                }
+//            }
+//        }
+    }
+
+    fun ocrLocal(view: View) {
+//        val res = resources as Resources
+//        val bmp = BitmapFactory.decodeResource(res, R.drawable.pobrane)
+    }
+
+    fun ocrCloud(view: View) {
+//        val values = mapOf("name" to "John Doe", "occupation" to "gardener")
+//
+//        val objectMapper = ObjectMapper()
+//        val requestBody: String = objectMapper
+//            .writeValueAsString(values)
+//
+//        val client = HttpClient.newBuilder().build();
+//        val request = HttpRequest.newBuilder()
+//            .uri(URI.create("https://httpbin.org/post"))
+//            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+//            .build()
+//        val response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//        println(response.body())
+
+
     }
 }
