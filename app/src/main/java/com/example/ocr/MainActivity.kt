@@ -10,14 +10,19 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.BatteryManager
 import android.os.Bundle
+import android.os.Environment
 import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.github.doyaaaaaken.kotlincsv.client.CsvWriter
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
+    private var csvWriter = CsvWriter()
+    private var fileName = "data.csv"
     private var isUpdating = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,5 +143,43 @@ class MainActivity : AppCompatActivity() {
             updateButton.text = resources.getString(R.string.stop_scheduler)
             isUpdating = true
         }
+    }
+
+    private fun saveToFile (line: List<Any>) {
+        val completePath = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).toString() + "/" + fileName
+
+        if (!File(completePath).exists()) {
+            csvWriter.open(completePath, append = true) {
+                writeRow(listOf("Time", "Battery", "RAM", "DownloadBandwidth", "UploadBandwidth", "NetworkType"))
+            }
+        }
+
+        csvWriter.open(completePath, append = true) {
+            writeRow(line)
+        }
+        Log.d("CSV", "Updated $fileName with new deltas, here is the complete path: $completePath")
+    }
+
+    fun calculateDeltaAndSave(view: View) {
+        val batteryStart = getBatteryLevel()
+        val ram = getRAMUsed()
+        var timeStart = getCurrentTimeInMillis()
+
+        // here we have OCR process
+        SystemClock.sleep(5000)
+
+        val timeEnd = getCurrentTimeInMillis()
+        val batteryEnd = getBatteryLevel()
+
+        val batteryDiff = batteryStart - batteryEnd
+        val timeDiff = timeEnd - timeStart
+
+        Log.d("CSV", "Delta's have been calculated!")
+
+        saveToFile(listOf(timeDiff, batteryDiff, ram,
+            getNetworkDownloadBandwidth(),
+            getNetworkUploadBandwidth(),
+            getNetworkType())
+        )
     }
 }

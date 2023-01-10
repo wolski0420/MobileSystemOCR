@@ -106,4 +106,12 @@
         android:text="@string/starting_value"
         android:textAlignment="center" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:onClick="calculateDeltaAndSave"
+        android:text="@string/delta_and_save"
+        android:textAlignment="center" />
+
 </LinearLayout>
