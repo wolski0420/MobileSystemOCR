@@ -199,7 +199,7 @@ public class OcrScan extends AppCompatActivity {
         return true;
     }
 
-    private void doOCR(final Bitmap bitmap) {
+    public  void doOCR(final Bitmap bitmap) {
         if (mProgressDialog == null) {
             mProgressDialog = ProgressDialog.show(this, "Processing",
                     "Doing OCR...", true);

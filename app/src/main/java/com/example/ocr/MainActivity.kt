@@ -17,12 +17,9 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.doyaaaaaken.kotlincsv.client.CsvWriter
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,11 +27,14 @@ class MainActivity : AppCompatActivity() {
     private var csvWriter = CsvWriter()
     private var fileName = "data.csv"
     private var isUpdating = false
+    var language = "eng"
+    private var mTessOCR: TesseractOCR? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         addUpdatesToRepeater()
+        mTessOCR = TesseractOCR(this, language)
     }
 
     override fun onDestroy() {
@@ -44,9 +44,9 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun getBatteryLevel () : Int {
+    private fun getBatteryLevel () : Long {
         val batteryManager = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-        return batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        return batteryManager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
     }
 
     private fun isBatteryCharging () : Boolean {
@@ -206,9 +206,54 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun ocrLocal(view: View) {
-//        val res = resources as Resources
-//        val bmp = BitmapFactory.decodeResource(res, R.drawable.pobrane)
+        val res = resources as Resources
+        var size = 0;
+        val ids = listOf(R.drawable.pobrane, R.drawable.pobrane, R.drawable.pobrane, R.drawable.pobrane)
+        var resultText = ""
+
+        for (i in 1..3) {
+            size = 0
+            val batteryStart = getBatteryLevel()
+            val ram = getRAMUsed()
+            val timeStart = getCurrentTimeInMillis()
+            for (j in 0..i) {
+
+                var bmp = BitmapFactory.decodeResource(res, ids[j])
+                size += bmp.byteCount
+                resultText = mTessOCR!!.getOCRResult(bmp)
+                if (resultText != null && resultText != "") {
+                    println(resultText)
+                }else
+                    println("No text found ERROR" + i.toString() + " " + j.toString())
+                }
+
+            getMeasurmestsAfterAndSave(view, batteryStart, timeStart, ram)
+
+            }
+
+        }
+
+
+
+
+
+
+    fun getMeasurmestsAfterAndSave(view: View, batteryStart: Long, timeStart: Long, ram:Double) {
+        val timeEnd = getCurrentTimeInMillis()
+        val batteryEnd = getBatteryLevel()
+
+        val batteryDiff = batteryStart - batteryEnd
+        var timeDiff = timeEnd - timeStart
+
+        Log.d("CSV", "Delta's have been calculated!")
+
+        saveToFile(listOf(timeDiff, batteryDiff, ram,
+            getNetworkDownloadBandwidth(),
+            getNetworkUploadBandwidth(),
+            getNetworkType())
+        )
     }
+
 
     fun ocrCloud(view: View) {
 //        val values = mapOf("name" to "John Doe", "occupation" to "gardener")
