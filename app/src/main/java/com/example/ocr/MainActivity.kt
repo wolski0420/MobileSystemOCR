@@ -4,13 +4,19 @@ import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.nio.file.Files
 
 
 class MainActivity : AppCompatActivity() {
@@ -99,16 +105,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun ocrLocal(view: View) {
+        // getting drawables
         val res = resources as Resources
         var size: Int
         val ids = listOf(R.drawable.pobrane, R.drawable.pobrane, R.drawable.pobrane, R.drawable.pobrane)
         var resultText: String
 
+        // processing multiple times
         for (i in 1..3) {
             size = 0
             collector.start()
 
+            // every time different number of drawables
             for (j in 0..i) {
+                // converting into bitmaps and OCRing
                 val bmp = BitmapFactory.decodeResource(res, ids[j])
                 size += bmp.byteCount
                 resultText = mTessOCR!!.getOCRResult(bmp)
@@ -128,6 +138,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun ocrCloud(view: View) {
-        // @TODO
+        // getting drawable and converting into byteArray
+        val image = resources.getDrawable(R.drawable.pobrane)
+        val bitmap = (image as BitmapDrawable).bitmap
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        val byteArray = stream.toByteArray()
+
+        // converting byteArray into File
+        val file = File(cacheDir, "image.jpg")
+        file.createNewFile()
+        val fos = FileOutputStream(file)
+        fos.write(byteArray)
+        fos.flush()
+        fos.close()
+
+        collector.start()
+
+        // sending request once
+        OwnHttpClient().sendRequestWithFile(
+            "http://192.168.0.136:8000/upload",
+            "pobrane.png", file
+        )
+
+        collector.finish(Files.size(file.toPath()).toInt())
+        collector.save()
     }
 }
