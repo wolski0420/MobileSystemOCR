@@ -2,14 +2,10 @@ package com.example.ocr;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
 
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -30,24 +26,16 @@ public class OwnHttpClient {
                     .build();
 
             OkHttpClient client = new OkHttpClient();
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(@NonNull final Call call, @NonNull final IOException e) {
-                    Log.d(OwnHttpClient.class.getSimpleName(), "Failed");
-                    Log.d(OwnHttpClient.class.getSimpleName(), e.getMessage());
-                }
+            Call call = client.newCall(request);
 
-                @Override
-                public void onResponse(@NonNull final Call call, @NonNull final Response response) throws IOException {
-                    if (!response.isSuccessful()) {
-                        Log.d(OwnHttpClient.class.getSimpleName(), "Unsuccessful");
-                        Log.d(OwnHttpClient.class.getSimpleName(), Objects.requireNonNull(response.body()).string());
-                    } else {
-                        Log.d(OwnHttpClient.class.getSimpleName(), "Success");
-                        Log.d(OwnHttpClient.class.getSimpleName(), Objects.requireNonNull(response.body()).string());
-                    }
-                }
-            });
+            Response response = call.execute();
+            if (!response.isSuccessful()) {
+                Log.d(OwnHttpClient.class.getSimpleName(), "Unsuccessful");
+                Log.d(OwnHttpClient.class.getSimpleName(), Objects.requireNonNull(response.body()).string());
+            } else {
+                Log.d(OwnHttpClient.class.getSimpleName(), "Success");
+                Log.d(OwnHttpClient.class.getSimpleName(), Objects.requireNonNull(response.body()).string());
+            }
 
             return true;
         } catch (Exception ex) {

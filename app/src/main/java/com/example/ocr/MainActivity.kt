@@ -16,7 +16,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.nio.file.Files
 
 
 class MainActivity : AppCompatActivity() {
@@ -112,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         var resultText: String
 
         // processing multiple times
-        for (i in 1..3) {
+        for (i in 1..10) {
             size = 0
             collector.start()
 
@@ -153,15 +152,19 @@ class MainActivity : AppCompatActivity() {
         fos.flush()
         fos.close()
 
-        collector.start()
+        Thread {
+            collector.start()
 
-        // sending request once
-        OwnHttpClient().sendRequestWithFile(
-            "http://192.168.0.136:8000/upload",
-            "pobrane.png", file
-        )
+            for (i in 1..10) {
+                // sending request once
+                OwnHttpClient().sendRequestWithFile(
+                    "http://192.168.0.136:8000/upload",
+                    "pobrane.png", file
+                )
+            }
 
-        collector.finish(Files.size(file.toPath()).toInt())
-        collector.save()
+            collector.finish(image.bitmap.byteCount)
+            collector.save()
+        }.start()
     }
 }
