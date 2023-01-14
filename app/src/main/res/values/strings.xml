@@ -14,4 +14,9 @@
     <string name="ocr_local">OCR locally</string>
     <string name="ocr_cloud">OCR on cloud</string>
     <string name="go_back">Go back to main</string>
+    <string name="iterations_input">Iterations</string>
+    <string name="packet_size_input">Packet size</string>
+    <string name="url_input">URL without protocol</string>
+    <string name="common_label">Common properties</string>
+    <string name="cloud_label">Cloud only</string>
 </resources>

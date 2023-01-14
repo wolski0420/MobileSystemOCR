@@ -15,6 +15,49 @@
         android:text="@string/resources_monitoring"
         android:textAlignment="center" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:text="@string/common_label"
+        android:textAlignment="center"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/iterations_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="@string/iterations_input"
+        android:textAlignment="center"
+        tools:ignore="Autofill"/>
+
+    <EditText
+        android:id="@+id/packet_size_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="@string/packet_size_input"
+        android:textAlignment="center"
+        tools:ignore="Autofill"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:text="@string/cloud_label"
+        android:textAlignment="center"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/url_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textUri"
+        android:hint="@string/url_input"
+        android:textAlignment="center"
+        tools:ignore="Autofill"/>
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

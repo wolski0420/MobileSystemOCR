@@ -10,6 +10,7 @@ import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_main.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -43,6 +44,10 @@ class MainActivity : AppCompatActivity() {
         var size: Int
         val ids = listOf(R.drawable.pobrane, R.drawable.pobrane, R.drawable.pobrane, R.drawable.pobrane)
         var resultText: String
+
+        // taking params from inputs
+        val iterations = iterations_input.text.toString().toInt()
+        val packetSize = packet_size_input.text.toString().toInt()
 
         Thread {
             // processing multiple times
@@ -88,18 +93,23 @@ class MainActivity : AppCompatActivity() {
         fos.flush()
         fos.close()
 
+        // taking params from inputs
+        val url = url_input.text
+        val iterations = iterations_input.text.toString().toInt()
+        val packetSize = packet_size_input.text.toString().toInt()
+
         Thread {
             collector.start()
 
             for (i in 1..10) {
                 // sending request once
                 OwnHttpClient().sendRequestWithFile(
-                    "http://192.168.0.136:8000/upload",
+                    "http://$url:8000/upload",
                     "pobrane.png", file
                 )
             }
 
-            collector.finish(10 * image.bitmap.byteCount)
+            collector.finish(iterations * image.bitmap.byteCount)
             collector.save()
         }.start()
     }
