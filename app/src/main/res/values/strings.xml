@@ -10,7 +10,8 @@
     <string name="network_upload">Network upload bandwidth</string>
     <string name="starting_value">0</string>
     <string name="network_type">Network type</string>
-    <string name="delta_and_save"><![CDATA[Calculate delta & save]]></string>
+    <string name="resources_monitoring">Monitor resources</string>
     <string name="ocr_local">OCR locally</string>
     <string name="ocr_cloud">OCR on cloud</string>
+    <string name="go_back">Go back to main</string>
 </resources>

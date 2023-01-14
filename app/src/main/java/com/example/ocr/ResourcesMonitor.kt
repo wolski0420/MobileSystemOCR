@@ -7,8 +7,9 @@ import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.BatteryManager
 import android.os.SystemClock
+import androidx.appcompat.app.AppCompatActivity
 
-class ResourcesMonitor(private var activity: MainActivity) {
+class ResourcesMonitor(private var activity: AppCompatActivity) {
 
     fun getBatteryLevel () : Long {
         val batteryManager = activity.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
