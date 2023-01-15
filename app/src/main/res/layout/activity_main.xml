@@ -59,6 +59,16 @@
         tools:ignore="Autofill"/>
 
     <Button
+        android:id="@+id/choose_dir_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:backgroundTint="@android:color/holo_orange_light"
+        android:onClick="chooseDirectory"
+        android:text="@string/choose_directory"
+        android:textAlignment="center" />
+
+    <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15sp"

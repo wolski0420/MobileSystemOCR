@@ -1,15 +1,21 @@
 package com.example.ocr
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
-import android.os.SystemClock
+import android.os.Environment
 import android.util.Log
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.documentfile.provider.DocumentFile
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -20,12 +26,30 @@ class MainActivity : AppCompatActivity() {
     private lateinit var monitor: ResourcesMonitor
     private lateinit var csvService: CSVFileService
     private lateinit var collector: ResultDataCollector
+    private lateinit var dirChooser: ActivityResultLauncher<Uri>
+    private lateinit var initialDir: Uri
+    private lateinit var chosenDir: Uri
     private var language = "eng"
     private var mTessOCR: TesseractOCR? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        initialDir = Uri.fromFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM))
+        dirChooser = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { result ->
+            if (result != null) {
+                chosenDir = result
+                initialDir = result
+
+                val dirDocument = DocumentFile.fromTreeUri(this.applicationContext, chosenDir)
+                if (dirDocument != null && dirDocument.exists() && dirDocument.isDirectory) {
+                    choose_dir_button.setBackgroundColor(Color.GREEN)
+                } else {
+                    choose_dir_button.setBackgroundColor(Color.RED)
+                }
+            }
+        }
 
         mTessOCR = TesseractOCR(this, language)
         monitor = ResourcesMonitor(this)
@@ -38,6 +62,22 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    @SuppressLint("Recycle")
+    private fun loadFilesAsByteArrays(): List<ByteArray>{
+        val dirDocument: DocumentFile? = DocumentFile.fromTreeUri(this.applicationContext, chosenDir)
+        val listOfByteArrays = mutableListOf<ByteArray>()
+
+        dirDocument?.listFiles()?.forEach { fileDocument ->
+            contentResolver.openInputStream(fileDocument.uri)?.readBytes()?.let { listOfByteArrays.add(it) }
+        }
+
+        return listOfByteArrays
+    }
+
+    fun chooseDirectory(view: View) {
+        dirChooser.launch(initialDir)
+    }
+
     fun ocrLocal(view: View) {
         // getting drawables
         val res = resources as Resources
@@ -48,18 +88,21 @@ class MainActivity : AppCompatActivity() {
         // taking params from inputs
         val iterations = iterations_input.text.toString().toInt()
         val packetSize = packet_size_input.text.toString().toInt()
+        val inputStreams = loadFilesAsByteArrays()
 
         Thread {
             // processing multiple times
-            for (i in 1..10) {
+            for (i in 1..1) {
                 size = 0
                 collector.start()
 
                 // every time different number of drawables
-                for (j in 0..i) {
+                for (j in 1..i) {
                     // converting into bitmaps and OCRing
-                    val bmp = BitmapFactory.decodeResource(res, ids[j])
-                    size += bmp.byteCount
+                    val image = inputStreams[0]
+                    val bmp = BitmapFactory.decodeByteArray(image, 0, image.size)
+//                    size += bmp.byteCount
+                    size += image.size
                     resultText = mTessOCR!!.getOCRResult(bmp)
 
                     if (resultText != "") {
