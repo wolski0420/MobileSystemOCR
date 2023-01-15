@@ -69,17 +69,21 @@
         android:textAlignment="center" />
 
     <Button
+        android:id="@+id/local_ocr_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15sp"
+        android:backgroundTint="@android:color/holo_orange_light"
         android:onClick="ocrLocal"
         android:text="@string/ocr_local"
         android:textAlignment="center" />
 
     <Button
+        android:id="@+id/cloud_ocr_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15sp"
+        android:backgroundTint="@android:color/holo_orange_light"
         android:onClick="ocrCloud"
         android:text="@string/ocr_cloud"
         android:textAlignment="center" />

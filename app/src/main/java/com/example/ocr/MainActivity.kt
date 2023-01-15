@@ -81,8 +81,14 @@ class MainActivity : AppCompatActivity() {
         val packetSize = packet_size_input.text.toString().toInt()
 
         Thread {
+            // setting initial status on button
+            local_ocr_button.setBackgroundColor(Color.YELLOW)
+
             // loading files
             val filesAsBA = loadFilesAsByteArrays()
+
+            // setting progress status on button
+            local_ocr_button.setBackgroundColor(Color.BLUE)
 
             // processing multiple times
             for (i in 1..iterations) {
@@ -113,6 +119,9 @@ class MainActivity : AppCompatActivity() {
                 collector.finish(size)
                 collector.save()
             }
+
+            // setting finish status on button
+            local_ocr_button.setBackgroundColor(Color.GREEN)
         }.start()
     }
 
@@ -123,9 +132,16 @@ class MainActivity : AppCompatActivity() {
         val packetSize = packet_size_input.text.toString().toInt()
 
         Thread {
+            // setting initial status on button
+            cloud_ocr_button.setBackgroundColor(Color.YELLOW)
+
             // loading files
             val filesAsBA = loadFilesAsByteArrays()
 
+            // setting progress status on button
+            cloud_ocr_button.setBackgroundColor(Color.BLUE)
+
+            // processing multiple times
             for (i in 1..iterations) {
                 // taking random images
                 val randomImages = filesAsBA.shuffled().take(packetSize)
@@ -161,6 +177,9 @@ class MainActivity : AppCompatActivity() {
                 collector.finish(size)
                 collector.save()
             }
+
+            // setting finish status on button
+            cloud_ocr_button.setBackgroundColor(Color.GREEN)
         }.start()
     }
 }
