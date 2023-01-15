@@ -2,11 +2,8 @@ package com.example.ocr
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.res.Resources
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -17,9 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.documentfile.provider.DocumentFile
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -67,7 +62,9 @@ class MainActivity : AppCompatActivity() {
         val dirDocument: DocumentFile? = DocumentFile.fromTreeUri(this.applicationContext, chosenDir)
         val listOfByteArrays = mutableListOf<ByteArray>()
 
-        dirDocument?.listFiles()?.forEach { fileDocument ->
+        dirDocument?.listFiles()?.filter { it.exists() && !it.isDirectory &&
+                (it.name!!.endsWith(".jpg") || it.name!!.endsWith(".jpeg") || it.name!!.endsWith(".png"))
+        }?.forEach { fileDocument ->
             contentResolver.openInputStream(fileDocument.uri)?.readBytes()?.let { listOfByteArrays.add(it) }
         }
 
@@ -79,41 +76,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun ocrLocal(view: View) {
-        // getting drawables
-        val res = resources as Resources
-        var size: Int
-        val ids = listOf(R.drawable.pobrane, R.drawable.pobrane, R.drawable.pobrane, R.drawable.pobrane)
-        var resultText: String
-
         // taking params from inputs
         val iterations = iterations_input.text.toString().toInt()
         val packetSize = packet_size_input.text.toString().toInt()
-        val inputStreams = loadFilesAsByteArrays()
 
         Thread {
+            // loading files
+            val filesAsBA = loadFilesAsByteArrays()
+
             // processing multiple times
-            for (i in 1..1) {
-                size = 0
+            for (i in 1..iterations) {
+                // taking random images
+                val randomImages = filesAsBA.shuffled().take(packetSize)
+
+                // preparing for monitoring
+                var size = 0
                 collector.start()
 
-                // every time different number of drawables
-                for (j in 1..i) {
+                // every image from random set
+                for (image in randomImages) {
                     // converting into bitmaps and OCRing
-                    val image = inputStreams[0]
                     val bmp = BitmapFactory.decodeByteArray(image, 0, image.size)
-//                    size += bmp.byteCount
-                    size += image.size
-                    resultText = mTessOCR!!.getOCRResult(bmp)
+                    val resultText = mTessOCR!!.getOCRResult(bmp)
 
                     if (resultText != "") {
-                        println(resultText)
                         Log.d("MainActivity - LocalOCR", resultText)
                     } else {
-                        println("No text found ERROR$i $j")
-                        Log.d("MainActivity - LocalOCR", "No text found ERROR$i $j")
+                        Log.d("MainActivity - LocalOCR", "No text found for $i packet and $image")
                     }
+
+                    // counting processed data size
+                    size += image.size
                 }
 
+                // end of monitoring
                 collector.finish(size)
                 collector.save()
             }
@@ -121,39 +117,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun ocrCloud(view: View) {
-        // getting drawable and converting into byteArray
-        val image = resources.getDrawable(R.drawable.pobrane)
-        val bitmap = (image as BitmapDrawable).bitmap
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-        val byteArray = stream.toByteArray()
-
-        // converting byteArray into File
-        val file = File(cacheDir, "image.jpg")
-        file.createNewFile()
-        val fos = FileOutputStream(file)
-        fos.write(byteArray)
-        fos.flush()
-        fos.close()
-
         // taking params from inputs
         val url = url_input.text
         val iterations = iterations_input.text.toString().toInt()
         val packetSize = packet_size_input.text.toString().toInt()
 
         Thread {
-            collector.start()
+            // loading files
+            val filesAsBA = loadFilesAsByteArrays()
 
-            for (i in 1..10) {
-                // sending request once
-                OwnHttpClient().sendRequestWithFile(
-                    "http://$url:8000/upload",
-                    "pobrane.png", file
-                )
+            for (i in 1..iterations) {
+                // taking random images
+                val randomImages = filesAsBA.shuffled().take(packetSize)
+
+                // preparing for monitoring
+                var size = 0
+                collector.start()
+
+                // every image from random set
+                for (image in randomImages) {
+                    // sending request
+                    val response = OwnHttpClient().sendRequestWithBytes(
+                        "http://$url:8000/upload",
+                        "pobrane.png", image
+                    )
+
+                    // processing response
+                    if (response != null) {
+                        if (response.isSuccessful) {
+                            Log.d("MainActivity - CloudOCR", "Success")
+                            Log.d("MainActivity - CloudOCR", response.body!!.string())
+                        } else {
+                            Log.d("MainActivity - CloudOCR", "Failure")
+                            Log.d("MainActivity - CloudOCR", response.body!!.string())
+                        }
+                    }
+
+                    // counting processed data size
+                    size += image.size
+                }
+
+                // end of monitoring
+                collector.finish(size)
+                collector.save()
             }
-
-            collector.finish(iterations * image.bitmap.byteCount)
-            collector.save()
         }.start()
     }
 }

@@ -3,7 +3,6 @@ package com.example.ocr;
 import android.util.Log;
 
 import java.io.File;
-import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.MediaType;
@@ -14,12 +13,24 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class OwnHttpClient {
-    public Boolean sendRequestWithFile(String serverURL, String imageName, File file) {
-        try {
-            RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                    .addFormDataPart("file", imageName, RequestBody.create(MediaType.parse("image/jpeg"), file))
-                    .build();
+    public Response sendRequestWithFile(String serverURL, String imageName, File file) {
+        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("file", imageName, RequestBody.create(MediaType.parse("image/jpeg"), file))
+                .build();
 
+        return sendRequestWithGivenBody(serverURL, requestBody);
+    }
+
+    public Response sendRequestWithBytes(String serverURL, String imageName, byte[] bytes) {
+        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("file", imageName, RequestBody.create(MediaType.parse("image/jpeg"), bytes))
+                .build();
+
+        return sendRequestWithGivenBody(serverURL, requestBody);
+    }
+
+    private Response sendRequestWithGivenBody(String serverURL, RequestBody requestBody) {
+        try {
             Request request = new Request.Builder()
                     .url(serverURL)
                     .post(requestBody)
@@ -27,21 +38,12 @@ public class OwnHttpClient {
 
             OkHttpClient client = new OkHttpClient();
             Call call = client.newCall(request);
-
-            Response response = call.execute();
-            if (!response.isSuccessful()) {
-                Log.d(OwnHttpClient.class.getSimpleName(), "Unsuccessful");
-                Log.d(OwnHttpClient.class.getSimpleName(), Objects.requireNonNull(response.body()).string());
-            } else {
-                Log.d(OwnHttpClient.class.getSimpleName(), "Success");
-                Log.d(OwnHttpClient.class.getSimpleName(), Objects.requireNonNull(response.body()).string());
-            }
-
-            return true;
-        } catch (Exception ex) {
+            return call.execute();
+        }
+        catch (Exception ex) {
             Log.d(OwnHttpClient.class.getSimpleName(), "Exception");
             Log.d(OwnHttpClient.class.getSimpleName(), ex.getMessage());
+            return null;
         }
-        return false;
     }
 }
