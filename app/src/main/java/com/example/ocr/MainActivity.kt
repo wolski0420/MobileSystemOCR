@@ -82,6 +82,9 @@ class MainActivity : AppCompatActivity() {
 
         Thread {
             // setting initial status on button
+            val buttonText = "${getString(R.string.ocr_local)} (loading)"
+            local_ocr_button.text = buttonText
+            local_ocr_button.isClickable = false
             local_ocr_button.setBackgroundColor(Color.YELLOW)
 
             // loading files
@@ -100,7 +103,14 @@ class MainActivity : AppCompatActivity() {
                 collector.start()
 
                 // every image from random set
-                for (image in randomImages) {
+                for (j in 1..randomImages.size) {
+                    // iteration status
+                    val buttonText = "${getString(R.string.ocr_local)} ($i/$iterations)->($j/$packetSize)"
+                    local_ocr_button.text = buttonText
+
+                    // taking right image
+                    val image = randomImages[j-1]
+
                     // converting into bitmaps and OCRing
                     val bmp = BitmapFactory.decodeByteArray(image, 0, image.size)
                     val resultText = mTessOCR!!.getOCRResult(bmp)
@@ -121,6 +131,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             // setting finish status on button
+            local_ocr_button.isClickable = true
+            local_ocr_button.text = getString(R.string.ocr_local)
             local_ocr_button.setBackgroundColor(Color.GREEN)
         }.start()
     }
@@ -133,6 +145,9 @@ class MainActivity : AppCompatActivity() {
 
         Thread {
             // setting initial status on button
+            val buttonText = "${getString(R.string.ocr_cloud)} (loading)"
+            cloud_ocr_button.text = buttonText
+            cloud_ocr_button.isClickable= false
             cloud_ocr_button.setBackgroundColor(Color.YELLOW)
 
             // loading files
@@ -151,7 +166,14 @@ class MainActivity : AppCompatActivity() {
                 collector.start()
 
                 // every image from random set
-                for (image in randomImages) {
+                for (j in 1..randomImages.size) {
+                    // iteration status
+                    val buttonText = "${getString(R.string.ocr_cloud)} ($i/$iterations)->($j/$packetSize)"
+                    cloud_ocr_button.text = buttonText
+
+                    // taking right image
+                    val image = randomImages[j-1]
+
                     // sending request
                     val response = OwnHttpClient().sendRequestWithBytes(
                         "http://$url:8000/upload",
@@ -179,6 +201,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             // setting finish status on button
+            cloud_ocr_button.isClickable = true
+            cloud_ocr_button.text = getString(R.string.ocr_cloud)
             cloud_ocr_button.setBackgroundColor(Color.GREEN)
         }.start()
     }
