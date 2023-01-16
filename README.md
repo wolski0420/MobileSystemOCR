@@ -26,3 +26,27 @@ Flask app created with tessaract and opencv.
 To run server navigate to 'cloud-ocr-app' and run 'docker compose up'.
 You can acces it at http://127.0.0.1:8000/
 To perform tests navigate to 'cloud-ocr-app' and run python -m unittest discover -s test -p '*test.py'
+
+
+Aspekty bezpieczeństwa się można sprwadzic do 3 atrybutów informacji pofuności, integralności oraz ich dostępności.
+Danymi w naszej aplikacji są wyniki z algorytmu ocr.
+Rozpatrując aspekt przsyłanie zdjęcia do serwer dane atrybuty można zdfiniować jako:
+### - dostępność - czas po którym otrzyamy dostęp do danych
+### - integralość - otrzymane dane zostały uzyskane z wykonania algorytmu ocr na identycznym zdjęciu i otrzymane dane są identyczne do tych które wysłał serwer 
+### - poufność - tylko my możemy poznać otrzymane dane
+
+### Integralność danych
+Moze być naruszona poprzez przypadkowy bład podczas wysyłania lub przez zamierzoną ingerecje w przesyłąne dane przez osobę trzecią.
+### Pounfność 
+Naruszona przez osobę trzecia podczas przesyłu danych (wysyłanie i odbieranie). Serwer jest traktowany jako bezpieczny element.
+Skala:  0 - brak zabepieczeń, 1 - jest zabezpieczenie
+Integralność - Przypadkowy bład, Integralność - Przypadkowy bład, Integralność - Ingerencja, Punfność - Ingerencja wysyłąnie, Punfność -  Ingerencja Odbieranie
+
+1) Podstawowe wysłanie - 0,0,0,0
+2) Dodanie cheksum - 1,0,0,0
+3) szyfrowanie klient-serwer - 0,0,1,0
+4) szyfrowanie serwer-klient - 0,0,0,1
+5) szyfrowanie klient-serwer-klient - 0,0,1,1
+6) checksumy szyfrowane klient-serwer-klient + dane surowe - 1,1,0,0
+7)szyforawnie cheksum i danych powrotnych, plik bez szyforawnie(duzo danych) = 1,1,0,1
+8) checksumy i dane szyfrowane klient-serwer-klient - 1,1,1,1
