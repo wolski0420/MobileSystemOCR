@@ -48,5 +48,5 @@ Integralność - Przypadkowy bład, Integralność - Przypadkowy bład, Integral
 4) szyfrowanie serwer-klient - 0,0,0,1
 5) szyfrowanie klient-serwer-klient - 0,0,1,1
 6) checksumy szyfrowane klient-serwer-klient + dane surowe - 1,1,0,0
-7)szyforawnie cheksum i danych powrotnych, plik bez szyforawnie(duzo danych) = 1,1,0,1
+7) szyforawnie cheksum i danych powrotnych, plik bez szyforawnie(duzo danych) = 1,1,0,1
 8) checksumy i dane szyfrowane klient-serwer-klient - 1,1,1,1
