@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity() {
 
     fun ocrCloud(view: View) {
         // taking params from inputs
-        val url = url_input.text
+        val urlAndPort = url_input.text
         val iterations = iterations_input.text.toString().toInt()
         val packetSize = packet_size_input.text.toString().toInt()
 
@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
 
                     // sending request
                     val response = OwnHttpClient().sendRequestWithBytes(
-                        "http://$url:8000/upload",
+                        "http://$urlAndPort/upload",
                         "pobrane.png", image
                     )
 
