@@ -199,7 +199,7 @@ class MainActivity : AppCompatActivity() {
 
                     // sending request
                     val response = OwnHttpClient().sendRequestWithBytes(
-                        "http://$urlAndPort/upload",
+                        "http://$urlAndPort:8000/upload",
                         "pobrane.png", image
                     )
 
@@ -236,7 +236,7 @@ class MainActivity : AppCompatActivity() {
         // more metrics can be obtained from ResourcesMonitor, just call "monitor.getX()"
         // @TODO some stuff there about decision
         // false - stay local, true - delegate to cloud
-        return false
+        return true
     }
 
     fun ocrDecision(view: View) {
@@ -281,23 +281,9 @@ class MainActivity : AppCompatActivity() {
                         // iteration status
                         val buttonText = "${getString(R.string.ocr_decision)} ($i/$iterations)->($j/$packetSize) (cloud)"
                         decision_ocr_button.text = buttonText
-
+                        var secMapper = SecurityMapper(securityLevel)
                         // sending request
-                        val response = OwnHttpClient().sendRequestWithBytes(
-                            "http://$urlAndPort/upload",
-                            "pobrane.png", image
-                        )
-
-                        // processing response
-                        if (response != null) {
-                            if (response.isSuccessful) {
-                                Log.d("MainActivity - DecisionOCR (cloud)", "Success")
-                                Log.d("MainActivity - DecisionOCR (cloud)", response.body!!.string())
-                            } else {
-                                Log.d("MainActivity - DecisionOCR (cloud)", "Failure")
-                                Log.d("MainActivity - DecisionOCR (cloud)", response.body!!.string())
-                            }
-                        }
+                        val result = secMapper.sendWithSecLevel(urlAndPort.toString(), image)
                     } else {
                         // iteration status
                         val buttonText = "${getString(R.string.ocr_decision)} ($i/$iterations)->($j/$packetSize) (local)"

@@ -2,7 +2,11 @@ package com.example.ocr;
 
 import android.util.Log;
 
+import org.apache.commons.codec.binary.Hex;
+
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import okhttp3.Call;
 import okhttp3.MediaType;
@@ -13,6 +17,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class OwnHttpClient {
+
+    SecurityPackage securityPackage = new SecurityPackage();
     public Response sendRequestWithFile(String serverURL, String imageName, File file) {
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("file", imageName, RequestBody.create(MediaType.parse("image/jpeg"), file))
@@ -28,6 +34,25 @@ public class OwnHttpClient {
 
         return sendRequestWithGivenBody(serverURL, requestBody);
     }
+
+    public Response sendRequestWithBytesEncrypted(String serverURL, String imageName, byte[] bytes) {
+        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("file", imageName, RequestBody.create(MediaType.parse("image/jpeg"), securityPackage.encrpt(bytes)))
+                .addFormDataPart("hash", securityPackage.encrpt(Hex.encodeHexString(securityPackage.sha256(bytes))))
+                .build();
+
+        return sendRequestWithGivenBody(serverURL, requestBody);
+    }
+
+    public Response sendRequestWithBytesWithHash(String serverURL, String imageName, byte[] bytes) {
+        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("file", imageName, RequestBody.create(MediaType.parse("image/jpeg"),bytes))
+                .addFormDataPart("hash", Hex.encodeHexString(securityPackage.sha256(bytes)))
+                .build();
+
+        return sendRequestWithGivenBody(serverURL, requestBody);
+    }
+
 
     private Response sendRequestWithGivenBody(String serverURL, RequestBody requestBody) {
         try {
