@@ -1,5 +1,8 @@
 package com.example.ocr
 
+import ai.onnxruntime.OnnxTensor
+import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -16,6 +19,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.slider.Slider
 import com.google.android.material.slider.Slider.OnSliderTouchListener
 import kotlinx.android.synthetic.main.activity_main.*
+import java.nio.FloatBuffer
 import java.util.*
 
 
@@ -236,8 +240,79 @@ class MainActivity : AppCompatActivity() {
         // more metrics can be obtained from ResourcesMonitor, just call "monitor.getX()"
         // @TODO some stuff there about decision
         // false - stay local, true - delegate to cloud
-        return true
+        Log.d("output", packetSize.toString())
+        val inputs = floatArrayOf(
+            packetSize.toFloat(), monitor.getNetworkDownloadBandwidth().toFloat(),
+            monitor.getNetworkUploadBandwidth().toFloat()
+        )
+
+        val ortEnvironment = OrtEnvironment.getEnvironment()
+        val ortSessionLocal = createORTSessionlocal(ortEnvironment)
+        val outputLocal = runPrediction(inputs, ortSessionLocal, ortEnvironment)
+        val ortSessionCloud = createORTSessionCloud(ortEnvironment)
+        val outputCloud = runPrediction(inputs, ortSessionCloud, ortEnvironment)
+
+        Log.d("output", "Packetsize " + packetSize.toString() + " localtime " + outputLocal.toString() + " clouldtime " + outputCloud.toString())
+
+
+        val timeRatio = outputLocal / outputCloud
+        var time_ax = 2
+        var battery_ax = 2
+        var ram_ax = 2
+        var safetyLevel_ax = 2
+
+        if (timeRatio < 1) {
+            time_ax = 5
+        } else if (timeRatio >= 1 && timeRatio < 1.5) {
+            time_ax = 4
+        } else if (timeRatio >= 1.5 && timeRatio < 2) {
+            time_ax = 3
+        } else {
+            time_ax = 2
+        }
+
+        val battery = monitor.getBatteryLevel()
+        if (battery > 75) {
+            battery_ax = 5
+        } else if (battery >= 50) {
+            battery_ax = 4
+        } else if (battery >= 25) {
+            battery_ax = 3
+        } else {
+            battery_ax = 2
+        }
+
+        val ram = monitor.getRAMUsed() / monitor.getRAMTotal() * 100
+        if (ram > 75) {
+            ram_ax = 2
+        } else if (ram >= 50) {
+            ram_ax = 3
+        } else if (ram >= 25) {
+            ram_ax = 4
+        } else {
+            ram_ax = 5
+        }
+
+
+        if (securityLevel == 7 || securityLevel == 8) {
+            safetyLevel_ax = 5
+        } else if (securityLevel == 6 || securityLevel == 5) {
+            safetyLevel_ax = 4
+        } else if (securityLevel == 4 || securityLevel == 3) {
+            safetyLevel_ax = 3
+        } else {
+            safetyLevel_ax = 2
+        }
+
+
+        var weighted_prediction =
+            0.35 * time_ax + battery_ax * 0.1 + ram_ax * 0.1 + safetyLevel_ax * 0.45
+        weighted_prediction *= 20
+        Log.d("output", weighted_prediction.toString())
+        return weighted_prediction < 60
+
     }
+
 
     fun ocrDecision(view: View) {
         // taking params from inputs
@@ -315,5 +390,31 @@ class MainActivity : AppCompatActivity() {
             decision_ocr_button.text = getString(R.string.ocr_decision)
             decision_ocr_button.setBackgroundColor(Color.GREEN)
         }.start()
+    }
+
+    // Create an OrtSession with the given OrtEnvironment
+    private fun createORTSessionlocal( ortEnvironment: OrtEnvironment) : OrtSession {
+        val modelBytes = resources.openRawResource( R.raw.local_model ).readBytes()
+        return ortEnvironment.createSession( modelBytes )
+    }
+
+
+    private fun createORTSessionCloud( ortEnvironment: OrtEnvironment) : OrtSession {
+        val modelBytes = resources.openRawResource( R.raw.cloud_model ).readBytes()
+        return ortEnvironment.createSession( modelBytes )
+    }
+    // Make predictions with given inputs
+    private fun runPrediction( input : FloatArray , ortSession: OrtSession , ortEnvironment: OrtEnvironment ) : Float {
+        // Get the name of the input node
+        val inputName = ortSession.inputNames?.iterator()?.next()
+        // Make a FloatBuffer of the inputs
+        val floatBufferInputs = FloatBuffer.wrap( input)
+        // Create input tensor with floatBufferInputs of shape ( 1 , 1 )
+        val inputTensor = OnnxTensor.createTensor( ortEnvironment , floatBufferInputs , longArrayOf( 1, 3 ) )
+        // Run the model
+        val results = ortSession.run( mapOf( inputName to inputTensor ) )
+        // Fetch and return the results
+        val output = results[0].value as Array<FloatArray>
+        return output[0][0]
     }
 }
