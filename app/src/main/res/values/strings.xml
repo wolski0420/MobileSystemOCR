@@ -20,4 +20,7 @@
     <string name="common_label">Common properties</string>
     <string name="cloud_label">Cloud only</string>
     <string name="choose_directory">Choose directory</string>
+    <string name="security_level">Security level = </string>
+    <string name="security_description">standard sending</string>
+    <string name="ocr_decision">OCR decision</string>
 </resources>

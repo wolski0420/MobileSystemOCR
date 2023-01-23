@@ -88,4 +88,40 @@
         android:text="@string/ocr_cloud"
         android:textAlignment="center" />
 
+    <TextView
+        android:id="@+id/security_level_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:text="@string/security_level"
+        android:textAlignment="center"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/security_description_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/security_description"
+        android:textAlignment="center"
+        android:textSize="15sp" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/security_level_slider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stepSize="1"
+        android:valueFrom="1"
+        android:valueTo="8"
+        android:value="1" />
+
+    <Button
+        android:id="@+id/decision_ocr_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:backgroundTint="@android:color/holo_orange_light"
+        android:onClick="ocrDecision"
+        android:text="@string/ocr_decision"
+        android:textAlignment="center" />
+
 </LinearLayout>
