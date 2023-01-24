@@ -35,10 +35,10 @@ class MainActivity : AppCompatActivity() {
     private var mapOfLevelDescriptions: Map<Int, String> = mapOf(
         1 to "standard sending",
         2 to "sending with checksum",
-        3 to "client-server encryption",
+        3 to "client-server-client checksum encryption",
         4 to "server-client encryption",
-        5 to "client-server-client encryption",
-        6 to "client-server-client checksum encryption",
+        5 to "client-server encryption",
+        6 to "client-server-client encryption",
         7 to "client-server-client checksum and result encryption",
         8 to "client-server-client checksum and data encryption"
     )
@@ -308,7 +308,7 @@ class MainActivity : AppCompatActivity() {
         var weighted_prediction =
             0.35 * time_ax + battery_ax * 0.1 + ram_ax * 0.1 + safetyLevel_ax * 0.45
         weighted_prediction *= 20
-        Log.d("output", weighted_prediction.toString())
+        Log.d("output", "prediction in %" + weighted_prediction.toString() + "security" + securityLevel.toString())
         return weighted_prediction < 60
 
     }

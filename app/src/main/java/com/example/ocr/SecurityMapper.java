@@ -13,8 +13,9 @@ public class SecurityMapper {
     private HashMap<Integer, String> urlEndingsMap = new HashMap<Integer, String>(){{
         put(1, "upload");
         put(2, "checksum" );
-        put(3, "fernet_in" );
-        put(5, "fernet_in_out" );
+        put(3, "checksum_fernet_in_out" );
+        put(4, "fernet_in" );
+        put(6, "fernet_in_out" );
         put(8, "checksum_fernet_in_out" );
     }};
     private OwnHttpClient httpClient = new OwnHttpClient();
@@ -34,16 +35,17 @@ public class SecurityMapper {
     }
 
     private Response sendRequest(String url,byte[] image){
-        //TODO
         Response response =null;
         if(this.secLevel == 1){
             response = httpClient.sendRequestWithBytes(url,"pobrane.png", image);
         } else if (this.secLevel == 2) {
             response = httpClient.sendRequestWithBytesWithHash(url,"pobrane.png", image);
         }else if (this.secLevel == 3) {
+            response = httpClient.sendRequestWithBytesEncrypted(url, "pobrane.png", image);
+        }else if (this.secLevel == 4) {
             response = httpClient.sendRequestWithBytesEncrypted(url,"pobrane.png", image);
         }
-        else if (this.secLevel == 5) {
+        else if (this.secLevel == 6) {
             response = httpClient.sendRequestWithBytesEncrypted(url,"pobrane.png", image);
         }else{
             response = httpClient.sendRequestWithBytesEncrypted(url,"pobrane.png", image);
@@ -53,23 +55,22 @@ public class SecurityMapper {
     }
 
     private boolean processResponse(Response response) throws IOException {
-        //TODO
-
         if (response != null) {
             if (response.isSuccessful()) {
 
                 Log.d("MainActivity - CloudOCR", "Success");
                 if(this.secLevel == 1){
-                    Log.d("MainActivity - CloudOCR", response.body().string()); // OK
+                    Log.d("MainActivity - CloudOCR", response.body().string());
                 } else if (this.secLevel == 2) {
-                    Log.d("MainActivity - CloudOCR", response.body().string()); //extract hash and checkit
+                    Log.d("MainActivity - CloudOCR", response.body().string());
                 }else if (this.secLevel == 3) {
-                    Log.d("MainActivity - CloudOCR", response.body().string()); // OK
-                }
-                else if (this.secLevel == 5) {
-                    Log.d("MainActivity - CloudOCR", this.secPackage.decrypt(response.body().string())); //OK
+                    Log.d("MainActivity - CloudOCR", this.secPackage.decrypt(response.body().string()));
+                } else if (this.secLevel == 4) {
+                    Log.d("MainActivity - CloudOCR", response.body().string());
+                } else if (this.secLevel == 6) {
+                    Log.d("MainActivity - CloudOCR", this.secPackage.decrypt(response.body().string()));
                 }else{
-                    Log.d("MainActivity - CloudOCR", this.secPackage.decrypt(response.body().string())); // extract hash and checkit
+                    Log.d("MainActivity - CloudOCR", this.secPackage.decrypt(response.body().string()));
                 }
                 return true;
             } else {
