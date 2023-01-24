@@ -8,6 +8,7 @@ import java.io.File
 class CSVFileService(private var activity: MainActivity) {
     private var csvWriter = CsvWriter()
     private var fileName = "data.csv"
+    private var decisionsFileName = "results.csv"
 
     fun saveToFile (line: List<Any>) {
         val completePath = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).toString() + "/" + fileName
@@ -22,5 +23,20 @@ class CSVFileService(private var activity: MainActivity) {
         }
 
         Log.d("CSVFileService", "Updated $fileName with new deltas, here is the complete path: $completePath")
+    }
+
+    fun saveDecisionsToFile (line: List<Any>) {
+        val completePath = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).toString() + "/" + decisionsFileName
+
+        if (!File(completePath).exists()) {
+            csvWriter.open(completePath, append = true) {
+                writeRow(listOf("Decision", "Accuracy"))
+            }
+        }
+        csvWriter.open(completePath, append = true) {
+            writeRow(line)
+        }
+
+        Log.d("CSVFileService", "Updated $decisionsFileName with new deltas, here is the complete path: $completePath")
     }
 }

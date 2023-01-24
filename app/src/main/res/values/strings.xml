@@ -23,4 +23,5 @@
     <string name="security_level">Security level = </string>
     <string name="security_description">standard sending</string>
     <string name="ocr_decision">OCR decision</string>
+    <string name="test_decision">Test decision</string>
 </resources>

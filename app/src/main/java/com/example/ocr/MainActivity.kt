@@ -16,8 +16,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.documentfile.provider.DocumentFile
-import com.google.android.material.slider.Slider
-import com.google.android.material.slider.Slider.OnSliderTouchListener
 import kotlinx.android.synthetic.main.activity_main.*
 import java.nio.FloatBuffer
 import java.util.*
@@ -234,13 +232,9 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
 
-    private fun decideAboutDelegation(packetSize: Int, securityLevel: Int) : Boolean {
+    private fun decideAboutDelegation(packetSize: Int, securityLevel: Int) : Pair<Boolean, Double> {
         Log.d("DelegationDecision", "PacketSize=$packetSize, SecurityLevel=$securityLevel")
-        // provided args are calculated on button clicked, not anytime like resources usage
-        // more metrics can be obtained from ResourcesMonitor, just call "monitor.getX()"
-        // @TODO some stuff there about decision
-        // false - stay local, true - delegate to cloud
-        Log.d("output", packetSize.toString())
+
         val inputs = floatArrayOf(
             packetSize.toFloat(), monitor.getNetworkDownloadBandwidth().toFloat(),
             monitor.getNetworkUploadBandwidth().toFloat()
@@ -252,7 +246,7 @@ class MainActivity : AppCompatActivity() {
         val ortSessionCloud = createORTSessionCloud(ortEnvironment)
         val outputCloud = runPrediction(inputs, ortSessionCloud, ortEnvironment)
 
-        Log.d("output", "Packetsize " + packetSize.toString() + " localtime " + outputLocal.toString() + " clouldtime " + outputCloud.toString())
+        Log.d("DelegationDecision", "Local-time: " + outputLocal.toString() + "; Cloud-time: " + outputCloud.toString())
 
 
         val timeRatio = outputLocal / outputCloud
@@ -271,7 +265,7 @@ class MainActivity : AppCompatActivity() {
             time_ax = 2
         }
 
-        val battery = monitor.getBatteryLevel()
+        val battery = iterations_input.text.toString().toInt()
         if (battery > 75) {
             battery_ax = 5
         } else if (battery >= 50) {
@@ -282,7 +276,7 @@ class MainActivity : AppCompatActivity() {
             battery_ax = 2
         }
 
-        val ram = monitor.getRAMUsed() / monitor.getRAMTotal() * 100
+        val ram = packet_size_input.text.toString().toInt()
         if (ram > 75) {
             ram_ax = 2
         } else if (ram >= 50) {
@@ -306,11 +300,10 @@ class MainActivity : AppCompatActivity() {
 
 
         var weighted_prediction =
-            0.35 * time_ax + battery_ax * 0.1 + ram_ax * 0.1 + safetyLevel_ax * 0.45
+            0.15 * time_ax + battery_ax * 0.2 + ram_ax * 0.2 + safetyLevel_ax * 0.45
         weighted_prediction *= 20
-        Log.d("output", weighted_prediction.toString())
-        return weighted_prediction < 60
-
+        Log.d("DelegationDecision", weighted_prediction.toString())
+        return Pair(weighted_prediction < 60, weighted_prediction)
     }
 
 
@@ -345,7 +338,7 @@ class MainActivity : AppCompatActivity() {
 
                 // decision
                 val imagesSize = randomImages.stream().mapToInt { it.size }.sum()
-                val toDelegate = decideAboutDelegation(imagesSize, securityLevel)
+                val toDelegate = decideAboutDelegation(imagesSize, securityLevel).first
 
                 // every image from random set
                 for (j in 1..randomImages.size) {
@@ -416,5 +409,42 @@ class MainActivity : AppCompatActivity() {
         // Fetch and return the results
         val output = results[0].value as Array<FloatArray>
         return output[0][0]
+    }
+
+    fun testDecision(view: View) {
+        // taking security level and setting some params
+        val secLevels = 8
+
+        Thread {
+            // setting initial status on button
+            val buttonText = "${getString(R.string.test_decision)} (loading)"
+            test_decision_button.text = buttonText
+            test_decision_button.isClickable= false
+            test_decision_button.setBackgroundColor(Color.YELLOW)
+
+            // loading files
+            val filesAsBA = loadFilesAsByteArrays()
+
+            // setting progress status on button
+            test_decision_button.setBackgroundColor(Color.BLUE)
+
+            // processing multiple times
+            for (level in 1..secLevels) {
+                // taking random images
+                val randomImages = filesAsBA.shuffled().take(50)
+
+                // decision
+                val imagesSize = randomImages.stream().mapToInt { it.size }.sum()
+                val toDelegate = decideAboutDelegation(imagesSize, level)
+
+                // saving results
+                csvService.saveDecisionsToFile(listOf(toDelegate.first, toDelegate.second))
+            }
+
+            // setting finish status on button
+            test_decision_button.isClickable = true
+            test_decision_button.text = getString(R.string.test_decision)
+            test_decision_button.setBackgroundColor(Color.GREEN)
+        }.start()
     }
 }

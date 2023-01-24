@@ -124,4 +124,14 @@
         android:text="@string/ocr_decision"
         android:textAlignment="center" />
 
+    <Button
+        android:id="@+id/test_decision_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15sp"
+        android:backgroundTint="@android:color/holo_orange_light"
+        android:onClick="testDecision"
+        android:text="@string/test_decision"
+        android:textAlignment="center" />
+
 </LinearLayout>
