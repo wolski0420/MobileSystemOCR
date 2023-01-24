@@ -17,7 +17,19 @@ mappings = {
     "results/b100r85nWifi.csv": "Battery full, RAM overload, Wifi networking",
 }
 
+all_decisions_occurrences = {
+    1: {"Cloud": 0, "Local": 0},
+    2: {"Cloud": 0, "Local": 0},
+    3: {"Cloud": 0, "Local": 0},
+    4: {"Cloud": 0, "Local": 0},
+    5: {"Cloud": 0, "Local": 0},
+    6: {"Cloud": 0, "Local": 0},
+    7: {"Cloud": 0, "Local": 0},
+    8: {"Cloud": 0, "Local": 0},
+}
+
 for filename, description in mappings.items():
+    # taking from file
     decisions, predictions = [], []
     with open(filename, 'r') as csvfile:
         data = csv.reader(csvfile, delimiter=",")
@@ -26,6 +38,11 @@ for filename, description in mappings.items():
             decisions.append("Cloud" if row[0] == "true" else "Local")
             predictions.append(float(row[1]))
 
+    # counting all occurrences for histogram
+    for i in range(len(decisions)):
+        all_decisions_occurrences[i+1][decisions[i]] += 1
+
+    # counting weak and strong choices for given experiment
     strong, weak = {"Cloud": 0, "Local": 0}, {"Cloud": 0, "Local": 0}
     for decision, prediction in zip(decisions, predictions):
         if prediction < 55 or 65 < prediction:
@@ -33,7 +50,7 @@ for filename, description in mappings.items():
         else:
             weak[decision] = weak[decision] + 1
 
-    print(strong.values())
+    # plotting results for given experiment
     plt.bar(strong.keys(), strong.values(), color="g", width=0.4, label="Strong choices")
     plt.bar(weak.keys(), weak.values(), bottom=[*strong.values()], color="r", width=0.4, label="Weak choices")
     plt.xlabel("Final decision")
@@ -41,5 +58,20 @@ for filename, description in mappings.items():
     plt.yticks(range(0, 9, 1))
     plt.title(description)
     plt.legend()
-    plt.savefig("images/" + filename.split("/")[1].split(".")[0] + ".png")
-    # plt.show()
+    # plt.savefig("images/" + filename.split("/")[1].split(".")[0] + ".png")
+    plt.show()
+
+# taking cloud and local summaries separately
+cloud_summary = {level: mappings["Cloud"] for level, mappings in all_decisions_occurrences.items()}
+local_summary = {level: mappings["Local"] for level, mappings in all_decisions_occurrences.items()}
+
+# plotting histogram
+plt.bar([*cloud_summary.keys()], [*cloud_summary.values()], color="b", width=0.25, label="Cloud")
+plt.bar([x + 0.25 for x in local_summary.keys()], [*local_summary.values()], color="y", width=0.25, label="Local")
+plt.xlabel("Security level")
+plt.ylabel("Number of choices")
+plt.yticks(range(0, 13, 1))
+plt.title("Summary from all experiments")
+plt.legend()
+plt.savefig("images/exp_histogram.png")
+plt.show()
